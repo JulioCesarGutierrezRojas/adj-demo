@@ -14,11 +14,18 @@ pipeline {
         }
 
         // Elimianr las imagenes anteriores  
-        stage('Borrando iamgenes antiguas') {
+        stage('Borrando imagenes antiguas') {
             steps {
                 script {
                     echo 'Eliminando imagenes antiguas...'
-                    bat 'IMAGES=$(docker images -q jcgr-demo) && if not "%IMAGES%"=="" (docker rmi -f %IMAGES%)'
+                    // En Windows (cmd) usamos un bucle FOR para iterar las imágenes y eliminarlas.
+                    // Jenkins crea un archivo por lotes, por eso usamos %%a (doble porcentaje) dentro del batch.
+                    bat '''
+                        for /f "delims=" %%a in ('docker images -q jcgr-demo') do (
+                        echo Eliminando imagen %%a
+                        docker rmi -f %%a || echo Falló al eliminar %%a
+                        )
+                    '''
                 }
             }
         }
