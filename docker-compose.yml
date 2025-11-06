@@ -1,0 +1,59 @@
+# Configuracion de los contenedores
+services:
+  frontend:
+    image: client:v1.0
+    build:
+      context: ./client
+      args:
+        API_HOST: localhost
+        API_PORT: 8081
+        API_BASEPATH: /adj-api
+    container_name: demo2-client
+    ports:
+      - "3000:80"
+    networks:
+      - jcgr-net
+    depends_on:
+      - database
+    
+  backend:
+    image: server:v1.0
+    build:
+      context: ./server
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_NAME: jcgr_demo
+      DB_USER: root
+      DB_PASSWORD: root
+    container_name: demo2-server
+    ports:
+      - "8081:8080"
+    networks:
+      - jcgr-net
+    depends_on:
+      - frontend
+
+  database:
+    image: mysql:8.0
+    container_name: demo2-database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jcgr_demo
+    ports:
+      - "3307:3306"
+    networks:
+      - jcgr-net
+    volumes:
+      - jcgr-volume:/var/lib/mysql
+
+# Redes donde se comunican los contenedores - docker network create --driver bridge jcgr-net
+networks:
+  jcgr-net:
+    external: true
+
+# Volumenes que ocupan los contenedores - docker volume create jcgr-volume
+volumes:
+  jcgr-volume:
+    external: true
