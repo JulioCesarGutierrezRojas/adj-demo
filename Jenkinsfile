@@ -7,8 +7,12 @@ pipeline {
             steps {
                 script {
                     echo 'Deteniendo contenedores (Windows)...'
-                    // En Windows con shell cmd, usar || exit 0 para evitar fallo si no hay contenedores
-                    bat 'docker compose -p jcgr-demo down || exit 0'
+                    // Detener y eliminar contenedores y volúmenes asociados
+                    bat '''
+                        docker compose -p jcgr-demo down -v || echo Compose down falló, intentando docker rm
+                        docker rm -f demo2-database demo2-server demo2-client 2>nul || echo No hay contenedores para eliminar
+                        exit /b 0
+                        '''
                 }
             }
         }
