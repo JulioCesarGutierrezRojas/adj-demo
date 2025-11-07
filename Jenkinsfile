@@ -25,7 +25,9 @@ pipeline {
                         echo Eliminando imagen %%a
                         docker rmi -f %%a || echo Falló al eliminar %%a
                         )
-                    '''
+'''
+                    // Asegurar que el script devuelve 0 incluso si docker rmi falla
+                    bat 'exit /b 0'
                 }
             }
         }
